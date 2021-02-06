@@ -9,5 +9,6 @@ if (Get-Module $moduleName -ErrorAction SilentlyContinue) {
     Remove-Module $moduleName -Force
 }
 Clear-Host
+Write-Host "repoPath:$repoPath"
 Import-Module "$repoPath\src\$ModuleName\$moduleName.psm1" -Force -Scope Global -ErrorAction Stop
 InModuleScope $moduleName $TestScope
