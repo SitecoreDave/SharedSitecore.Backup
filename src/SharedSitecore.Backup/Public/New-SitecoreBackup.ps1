@@ -13,6 +13,8 @@ Set-StrictMode -Version Latest
     Specifies the destination path - uses source.backups.yyyyMMdd if null
 .PARAMETER Exclude
     Specifies the paths to exclude
+.PARAMETER Compress
+    Swith Compression on and off
 .EXAMPLE
     PS C:\> New-SitecoreBackup -Source /source -Destination "/backups"
 .EXAMPLE
@@ -38,51 +40,63 @@ function New-SitecoreBackup
         [string]$destination = "",
 		
 		[Parameter(Position=2)]
-        [string[]]$exclude = ("")
+        [string[]]$exclude = (""),
+
+		[Parameter(Position=3)]
+		[switch] $compress
     )
     begin {
 		$ErrorActionPreference = 'Stop'
-
-		#Clear-Host
 		$VerbosePreference = "Continue"
-
 		$scriptName = ($MyInvocation.MyCommand.Name.Replace(".ps1",""))
-		$scriptPath = $PSScriptRoot #$MyInvocation.MyCommand.Path
-		$scriptFolder = Split-Path $scriptPath
-		
-		$reposPath = Split-Path (Split-Path (Split-Path $scriptPath -Parent) -Parent) -Parent
-		Write-Verbose "reposPath:$reposPath"
+
+		if (!$source) {
+			$source = $pwd
+		}
 
 		if (!$destination) {
 			$dateFormat = Get-Date -Format "yyyyMMdd"
-			$backup = "$destination.backup.$dateFormat"
+			$backup = "$source.backup.$dateFormat"
 			if (Test-Path $backup) {
-				$dateFormat = Get-Date -Format "yyyyMMddmm"
-				$backup = "$destination.backup.$dateFormat"
+				$dateFormat = Get-Date -Format "yyyyMMdd.hhmm"
+				$backup = "$source.backup.$dateFormat"
 			}
 			$destination = $backup
 		}
 
-		Write-Verbose "$scriptName $source $destination"
+		Write-Verbose "$scriptName $source $destination $exclude"
 	}
 	process {
 		try {
-			if($PSCmdlet.ShouldProcess($config)) {
-				Copy-Item -Path (Get-Item -Path "$source\*" -Exclude $exclude.FullName -Destination $destination -Recurse -Force
+			if ($PSCmdlet.ShouldProcess($source)) {
+				if (!$source.StartsWith("http")) {
+					$items = Get-ChildItem -Path "$source" -Exclude $exclude -Recurse -Force
+				} else {
+					#todo:
+					#kudu
+					#destionat = default .\backups\resourcegroup\date\xxxx
+					#download\zip:\home\site\wwwroot to year-mm-dd-hh-mm-resourcegroup-instance-wwwroot.zip
 
-				#kudu
-				#destionat = default .\backups\resourcegroup\date\xxxx
-				#download\zip:\home\site\wwwroot to year-mm-dd-hh-mm-resourcegroup-instance-wwwroot.zip
+					#authoring
+					#bizfx
+					#minions
+					#ops
+					#shops
 
-				#authoring
-				#bizfx
-				#minions
-				#ops
-				#shops
+					#may need to do something different/custom here since they're around 250mb. just get vitals?
+					#cd
+					#cm
+				}
 
-				#may need to do something different/custom here since they're around 250mb. just get vitals?
-				#cd
-				#cm
+				if ($items) {
+					if (!$compress) {
+
+						Copy-Item -Destination Join-Path $destination $_.FullName.Substring($source.length)
+
+					} else {
+						Compress-Archive -Path $items -DestinationPath $destination -CompressionLevel Fastest
+					}
+				}
 			}
         }
         finally {
