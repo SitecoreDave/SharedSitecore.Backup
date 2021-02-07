@@ -45,8 +45,10 @@ Write-Verbose "repoPath:$repoPath"
 
     Describe 'Module Manifest Tests' {
         It 'passes Test-ModuleManifest' {
-            $repoPath = Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent
+            $repoPath = Split-Path (Split-Path (Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent) -Parent) -Parent
+            Write-Host "repoPath:$repoPath"
             $ModuleName = Split-Path $repoPath -Leaf
+            Write-Host "moduleName:$ModuleName"
             $ModuleManifestName = "$ModuleName.psd1"
             $ModuleManifestPath = "$repoPath\src\$ModuleName\$ModuleManifestName"
 
