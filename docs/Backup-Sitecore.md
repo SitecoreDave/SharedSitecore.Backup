@@ -1,11 +1,11 @@
 ---
-external help file: Build-SitecoreDocker-help.xml
-Module Name: Build-SitecoreDocker
+external help file: Backup-Sitecore-help.xml
+Module Name: Backup-Sitecore
 online version:
 schema: 2.0.0
 ---
 
-# Build-SitecoreDocker
+# Backup-Sitecore
 
 ## SYNOPSIS
 This script says hello to the user from VSTS
@@ -13,7 +13,7 @@ This script says hello to the user from VSTS
 ## SYNTAX
 
 ```
-Build-SitecoreDocker
+Backup-Sitecore
 ```
 
 ## DESCRIPTION

@@ -2,11 +2,11 @@
 <helpItems schema="maml" xmlns="http://msh">
   <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
     <command:details>
-      <command:name>Build-SitecoreDocker</command:name>
-      <command:verb>Build</command:verb>
-      <command:noun>SitecoreDocker</command:noun>
+      <command:name>Backup-Sitecore</command:name>
+      <command:verb>Backup</command:verb>
+      <command:noun>Sitecore</command:noun>
       <maml:description>
-        <maml:para>This script says builds SitecoreDocker images</maml:para>
+        <maml:para>This script backups Sitecore wwwroot</maml:para>
       </maml:description>
     </command:details>
     <maml:description>
@@ -14,7 +14,7 @@
     </maml:description>
     <command:syntax>
       <command:syntaxItem>
-        <maml:name>Build-SitecoreDocker</maml:name>
+        <maml:name>Backup-Sitecore</maml:name>
       </command:syntaxItem>
     </command:syntax>
     <command:parameters />

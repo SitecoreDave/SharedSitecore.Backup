@@ -51,15 +51,22 @@ function Backup-Sitecore
 		$scriptName = ($MyInvocation.MyCommand.Name.Replace(".ps1",""))
 
 		if (!$source) {
-			$source = $pwd
+			$source = Get-Location
+			if ($PSScriptRoot.StartsWith($source)) {
+				$source = "~\sc93sc.dev.local"
+			}
+		}
+		if ($source.StartsWith("~")) {
+			$source = Join-Path (Get-Location) $source.Remove(0, 1)
 		}
 
 		if (!$destination) {
 			$dateFormat = Get-Date -Format "yyyy-MM-dd"
 			$backup = "$source.backup.$dateFormat"
 			if (Test-Path $backup) {
-				$dateFormat = Get-Date -Format "yyyy-MM-dd-hh-mm"
-				$backup = "$source.backup.$dateFormat"
+				#$created = Get-Date ((Get-Item $backup) | Select-Object CreationTime) -Format "yyyy-MM-dd-hh-mm"
+				$created = "{0:yyyy-MM-dd-hh-mm}" -f ((Get-Date (Get-Item $backup).CreationTime))
+				rename-item -Path $backup -NewName "$source.backup.$created"
 			}
 			$destination = $backup
 		}
@@ -100,17 +107,30 @@ function Backup-Sitecore
 						#$itemOutput | Add-Member -Type NoteProperty -Name Source -Value $item.FullName
 						#$itemOutput | Add-Member -Type NotePropery -Name Destination -Value $destination
 						#$items | Format-List
-
+						if (!(Test-Path -path $destination)) {New-Item $destination -Type Directory}
 						foreach ($item in $items) {
-							Write-Output $item.FullName
-							#Copy-Item -Path $item.FullName -Destination "$destination\$($item.FullName.Substring($source.length))"
+							#Write-Verbose $item.FullName
+							#$file = $item.FullName.Substring($source.length)
+
+							$folderName = (Split-Path $item.FullName -Parent).Remove(0, $source.length)
+							if ($folderName) {
+								$folderName = Join-Path $destination $folderName
+								Write-Verbose "folderName:$folderName"
+								if (!(Test-Path -Path $folderName)) {
+									Write-Verbose "Creating:$folderName"
+									New-Item $folderName -Type Directory
+									Write-Verbose "Created:$folderName"
+								}
+							}
+							$file = $item.FullName.Remove(0, $source.length)
+							Copy-Item -Path $item.FullName -Destination "$destination\$file" -Force
 						}
 
 					} else {
 						$destination = "$destination.zip"
 						Compress-Archive -Path $items -DestinationPath $destination -CompressionLevel Fastest
 					}
-					Write-Output "Backup-Sitecore created: $destination"					
+					return "Backup-Sitecore created: $destination"
 				}
 			}
         
@@ -118,6 +138,7 @@ function Backup-Sitecore
         finally {
             #Pop-Location
         }
+
+		return ""
     }
-	
 }

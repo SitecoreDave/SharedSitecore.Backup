@@ -1,5 +1,4 @@
 $repoPath = Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent
-Write-Verbose "repoPath:$repoPath"
 . $repoPath\tests\TestRunner.ps1 {
     $repoPath = Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent
     . $repoPath\tests\TestUtils.ps1
@@ -22,35 +21,26 @@ Write-Verbose "repoPath:$repoPath"
         #$ModuleManifestPath = "$PSScriptRoot\..\..\src\$ModuleManifestName"
 
         It 'imports successfully' {
-            $repoPath = Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent
-            $ModuleName = Split-Path $repoPath -Leaf
-            #$ModuleScriptName = 'SharedSitecore.Backup.psm1'
-            #$ModuleManifestName = 'SharedSitecore.Backup.psd1'
-            $ModuleScriptPath = "$repoPath\src\$ModuleName\$ModuleName.psm1"
-            #$ModuleManifestPath = "$PSScriptRoot\..\..\src\$ModuleManifestName"
-
-            Write-Verbose "Import-Module -Name $($ModuleScriptPath)"
+            $ModuleScriptFolder = Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent
+            $ModuleName = Split-Path $ModuleScriptFolder -Leaf
+            $ModuleScriptPath = "$ModuleScriptFolder\$ModuleName.psm1"
             { Import-Module -Name $ModuleScriptPath -ErrorAction Stop } | Should -Not -Throw
         }
 
         It 'passes default PSScriptAnalyzer rules' {
-            $repoPath = Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent
-            $ModuleName = Split-Path $repoPath -Leaf
-            #$ModuleScriptName = 'SharedSitecore.Backup.psm1'
-            $ModuleScriptPath = "$repoPath\src\$ModuleName\$ModuleName.psm1"
-
+            $ModuleScriptFolder = Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent
+            $ModuleName = Split-Path $ModuleScriptFolder -Leaf
+            $ModuleScriptPath = "$ModuleScriptFolder\$ModuleName.psm1"
             Invoke-ScriptAnalyzer -Path $ModuleScriptPath | Should -BeNullOrEmpty
         }
     }
 
     Describe 'Module Manifest Tests' {
         It 'passes Test-ModuleManifest' {
-            $repoPath = Split-Path (Split-Path (Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent) -Parent) -Parent
-            Write-Host "repoPath:$repoPath"
-            $ModuleName = Split-Path $repoPath -Leaf
-            Write-Host "moduleName:$ModuleName"
+            $ModuleScriptFolder = Split-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) -Parent
+            $ModuleName = Split-Path $ModuleScriptFolder -Leaf
             $ModuleManifestName = "$ModuleName.psd1"
-            $ModuleManifestPath = "$repoPath\src\$ModuleName\$ModuleManifestName"
+            $ModuleManifestPath = "$ModuleScriptFolder\$ModuleManifestName"
 
             Write-Output $ModuleManifestPath
             Test-ModuleManifest -Path $ModuleManifestPath | Should -Not -BeNullOrEmpty
